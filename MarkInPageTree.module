@@ -15,55 +15,32 @@
  *
  */
 
-class MarkInPageTree extends WireData implements Module {
+ class MarkInPageTree extends WireData implements Module {
 
-	public static function getModuleInfo() {
-		return array(
-			'title' => "MarkInPageTree",
-			'version' => "0.0.1",
-			'summary' => "Mark pages in page tree by true field",
-			'author' => "Ben Byford",
-			// 'href' => "https://github.com/benbyford/PW-intermediate-modules",
-			'icon' => "certificate",
-			'autoload' => true,
-			'singular' => true
-		);
-	}
+ 	public static function getModuleInfo() {
+ 		return array(
+ 			'title' => "MarkInPageTree",
+ 			'version' => "0.0.2",
+ 			'summary' => "Mark pages in page tree by true field",
+ 			'author' => "Ben Byford",
+ 			'autoload' => true,
+ 			'singular' => true
+ 		);
+ 	}
 
-	private $postPubLater 	= null;
+ 	public function init() {
+ 		$this->addHook("ProcessPageListRender::getPageLabel", $this, 'hookPageListActions');
+ 	}
 
+ 	public function ___hookPageListActions(HookEvent $event) {
+ 		$page = $event->arguments[0];
+ 		$out = "";
 
-	// initialize the hook in your AutoLoad module
-	public function init() {
+ 		if($page->is($this->selector)){
+ 			$icon = $this->iconName != "" ? $this->iconName : "certificate";
+ 			$out = '<i class="fa '. $icon .'"></i>';
+ 		}
 
-		// add hooks to PageList
-		$this->addHook("ProcessPageListRender::getPageLabel", $this, 'hookPageListActions');
-	}
-
-	public function ___hookPageListActions(HookEvent $event) {
-
-		// get current page
-		$page = $event->arguments[0];
-
-		// get icon in module settings
-		$icon = $this->iconName != "" ? $this->iconName : "certificate";
-
-		$out = "";
-
-		// check to see if page is has matching template
-		if($this->templateName != ""){
-			if($page->template == $this->templateName){
-				$out = '<i class="fa fa-'. $icon .'"></i>';
-			}
-		}
-		// if page has true field
-		if($this->fieldName != "" && $out == ""){
-			$pageExclusive = $page->get($this->fieldName);
-			if($pageExclusive){
-				$out = '<i class="fa fa-'. $icon .'"></i>';
-			}
-		}
-
-		$event->return = $out . $event->return;
-	}
-}
+ 		$event->return = $out . $event->return;
+ 	}
+ }
