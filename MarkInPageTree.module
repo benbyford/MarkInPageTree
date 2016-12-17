@@ -20,8 +20,9 @@
  	public static function getModuleInfo() {
  		return array(
  			'title' => "MarkInPageTree",
- 			'version' => "0.0.2",
- 			'summary' => "Mark pages in page tree by true field",
+ 			'version' => "0.0.3",
+ 			'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
+            'href' => 'https://github.com/benbyford/MarkInPageTree',
  			'author' => "Ben Byford",
  			'autoload' => true,
  			'singular' => true
@@ -29,18 +30,118 @@
  	}
 
  	public function init() {
+
+        // add hook to page list render
  		$this->addHook("ProcessPageListRender::getPageLabel", $this, 'hookPageListActions');
+
+        // add module specific css
+        $this->config->styles->add($this->config->urls->MarkInPageTree . "MarkInPageTree.css");
  	}
+
 
  	public function ___hookPageListActions(HookEvent $event) {
+
+        // create fields input array
+        $fieldsArray = $this->getValuePairsPerLineArray($this->field);
+        // create template input array
+        $templateArray = $this->getValuePairsPerLineArray($this->template);
+
+        // create data field input array
+        $fieldDataArray = $this->getValuePerLineArray($this->data_field);
+
+
+        // get current list page with pagetree
  		$page = $event->arguments[0];
- 		$out = "";
 
- 		if($page->is($this->selector)){
- 			$icon = $this->iconName != "" ? $this->iconName : "certificate";
- 			$out = '<i class="fa '. $icon .'"></i>';
- 		}
+        // output html to page tree
+ 		$before = "";
+        $after = "";
 
- 		$event->return = $out . $event->return;
+        // set before html
+        foreach ($fieldsArray as $field => $icon) {
+
+            // if field in page template
+            // AND not false then add icon
+            if($page->get($field)){
+     			$before .= $this->addIcon($icon);
+     		}
+        }
+        foreach ($templateArray as $template => $icon) {
+
+            // if template is page template add icon
+            if($page->template == $template){
+     			$before .= $this->addIcon($icon);
+     		}
+        }
+
+        // set after html
+        foreach ($fieldDataArray as $field) {
+            if($page->has($field)){
+
+                // get data from page field
+                $data = $page->get($field);
+
+                // output to list
+                $after .= $this->addData($field, $data);
+     		}
+        }
+
+        // return edited page list item contents
+ 		$event->return = $before . $event->return . $after;
  	}
+
+    // hookable function to get icon html to be added
+    public function ___addIcon($icon){
+        return '<i class="fa fa-'. $icon .'"></i>';
+    }
+
+    // hookable function to add data to end of list item in page tree
+    public function ___addData($field, $data){
+        $out = '<span class="MarkData align_right detail">';
+        $out .= '<span class="title DataTitlel label">'. $field .':</span>';
+        $out .= '<span> '. $data .'</span></span>';
+        return $out;
+    }
+
+    /*
+    * @param: textarea input text string
+    */
+    protected function getValuePairsPerLineArray($string){
+
+        // get array of field pairs (icon and field name)
+        $cropArrayField = explode("\n", $string);
+        $a = [];
+
+        // for each line get pair of values and add to fieldAray
+        foreach ($cropArrayField as $v) {
+
+            // get value pair from textarea
+            $cropItems = explode(',', trim($v));
+
+            // set field as new array key item with value of icon
+            // and trim whitespace
+            $a[trim($cropItems[1])] = trim($cropItems[0]);
+        }
+
+        return $a;
+    }
+
+    /*
+    * @param: textarea input text string
+    */
+    protected function getValuePerLineArray($string){
+
+        // get array of field pairs (icon and field name)
+        $cropArrayField = explode("\n", $string);
+        $a = [];
+
+        // for each line get value
+        foreach ($cropArrayField as $v) {
+
+            // add each value to array
+            array_push($a, trim($v));
+        }
+
+        return $a;
+    }
  }

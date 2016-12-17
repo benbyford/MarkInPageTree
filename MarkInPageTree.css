@@ -1,0 +1,9 @@
+.MarkData:before{
+    content: "" !important;
+}
+.MarkData span:before{
+    content: "" !important;
+}
+span.MarkData{
+    color: #ccc;
+}
