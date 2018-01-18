@@ -120,7 +120,10 @@
 
             // set field as new array key item with value of icon
             // and trim whitespace
-            $a[trim($cropItems[1])] = trim($cropItems[0]);
+            if(count($cropItems) > 1){
+                // if crop items then set items
+                $a[trim($cropItems[1])] = trim($cropItems[0]);
+            }
         }
 
         return $a;
