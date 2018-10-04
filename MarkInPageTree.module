@@ -15,46 +15,61 @@
  *
  */
 
- class MarkInPageTree extends WireData implements Module {
+class MarkInPageTree extends WireData implements Module {
 
- 	public static function getModuleInfo() {
- 		return array(
- 			'title' => "MarkInPageTree",
- 			'version' => "0.0.3",
- 			'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
-            'href' => 'https://github.com/benbyford/MarkInPageTree',
- 			'author' => "Ben Byford",
- 			'autoload' => true,
- 			'singular' => true
- 		);
- 	}
+    public static function getModuleInfo() {
+        return array(
+            'title' => "MarkInPageTree",
+            'version' => "0.0.3",
+            'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
+                'href' => 'https://github.com/benbyford/MarkInPageTree',
+            'author' => "Ben Byford",
+            'autoload' => 'template=admin',
+            'singular' => true
+        );
+    }
+    
+    /**
+     * Ready
+     */
+    public function ready() {
+        $enable = false;
+        if(!$this->allowed_roles || $this->user->isSuperuser()) {
+            // All roles are allowed or user is superuser
+            $enable = true;
+        } else {
+            foreach($this->allowed_roles as $allowed_role) {
+                if($this->user->hasRole($allowed_role)) {
+                  $enable = true;
+                  break;
+                }
+            }
+        }
+        if($enable) {
+            // add hook to page list render
+            $this->addHook("ProcessPageListRender::getPageLabel", $this, 'hookPageListActions');
 
- 	public function init() {
-
-        // add hook to page list render
- 		$this->addHook("ProcessPageListRender::getPageLabel", $this, 'hookPageListActions');
-
-        // add module specific css
-        $this->config->styles->add($this->config->urls->MarkInPageTree . "MarkInPageTree.css");
- 	}
+            // add module specific css
+            $this->config->styles->add($this->config->urls->MarkInPageTree . "MarkInPageTree.css");
+        }
+    }
 
 
- 	public function ___hookPageListActions(HookEvent $event) {
-
+    public function ___hookPageListActions(HookEvent $event) {
         // create fields input array
         $fieldsArray = $this->getValuePairsPerLineArray($this->field);
+
         // create template input array
         $templateArray = $this->getValuePairsPerLineArray($this->template);
 
         // create data field input array
         $fieldDataArray = $this->getValuePerLineArray($this->data_field);
 
-
         // get current list page with pagetree
- 		$page = $event->arguments[0];
+        $page = $event->arguments[0];
 
         // output html to page tree
- 		$before = "";
+        $before = "";
         $after = "";
 
         // set before html
@@ -63,15 +78,14 @@
             // if field in page template
             // AND not false then add icon
             if($page->get($field)){
-     			$before .= $this->addIcon($icon);
-     		}
+                $before .= $this->addIcon($icon);
+            }
         }
         foreach ($templateArray as $template => $icon) {
-
             // if template is page template add icon
             if($page->template == $template){
-     			$before .= $this->addIcon($icon);
-     		}
+                $before .= $this->addIcon($icon);
+            }
         }
 
         // set after html
@@ -83,12 +97,12 @@
 
                 // output to list
                 $after .= $this->addData($field, $data);
-     		}
+            }
         }
 
         // return edited page list item contents
- 		$event->return = $before . $event->return . $after;
- 	}
+        $event->return = $before . $event->return . $after;
+    }
 
     // hookable function to get icon html to be added
     public function ___addIcon($icon){
@@ -125,7 +139,6 @@
                 $a[trim($cropItems[1])] = trim($cropItems[0]);
             }
         }
-
         return $a;
     }
 
@@ -140,11 +153,9 @@
 
         // for each line get value
         foreach ($cropArrayField as $v) {
-
             // add each value to array
             array_push($a, trim($v));
         }
-
         return $a;
     }
- }
+}
