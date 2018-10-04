@@ -22,7 +22,7 @@ class MarkInPageTree extends WireData implements Module {
             'title' => "MarkInPageTree",
             'version' => "0.0.3",
             'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
-                'href' => 'https://github.com/benbyford/MarkInPageTree',
+            'href' => 'https://github.com/benbyford/MarkInPageTree',
             'author' => "Ben Byford",
             'autoload' => 'template=admin',
             'singular' => true
@@ -38,10 +38,10 @@ class MarkInPageTree extends WireData implements Module {
             // All roles are allowed or user is superuser
             $enable = true;
         } else {
-            foreach($this->allowed_roles as $allowed_role) {
+            foreach ($this->allowed_roles as $allowed_role) {
                 if($this->user->hasRole($allowed_role)) {
-                  $enable = true;
-                  break;
+                    $enable = true;
+                    break;
                 }
             }
         }
