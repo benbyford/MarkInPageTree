@@ -24,7 +24,7 @@
  			'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
             'href' => 'https://github.com/benbyford/MarkInPageTree',
  			'author' => "Ben Byford",
- 			'autoload' => true,
+ 			'autoload' => 'template=admin',
  			'singular' => true
  		);
  	}
