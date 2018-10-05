@@ -1,6 +1,6 @@
 <?php
 /**
- * DeferredPublish (0.0.1)
+ * DeferredPublish (0.0.4)
  * DeferredPublish publishes a page after a defined amount of time has elapsed using lazycron.
  *
  * @author Ben Byford
@@ -20,7 +20,7 @@ class MarkInPageTree extends WireData implements Module {
     public static function getModuleInfo() {
         return array(
             'title' => "MarkInPageTree",
-            'version' => "0.0.3",
+            'version' => "0.0.4",
             'summary' => "Mark pages in page tree by field or template, and add data from page in page tree",
             'href' => 'https://github.com/benbyford/MarkInPageTree',
             'author' => "Ben Byford",
